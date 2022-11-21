@@ -13,18 +13,18 @@ namespace _3DLab
     {
         private readonly Vector3[] points = new Vector3[]
             {
-                new Vector3 (-50, -50, -50),
-                new Vector3 (50, -50, -50),
-                new Vector3 (50, 50, -50),
-                new Vector3 (-50, 50, -50),
+                new Vector3 (-50f, -50f, -50f),
+                new Vector3 (50f, -50f, -50f),
+                new Vector3 (50f, 50f, -50f),
+                new Vector3 (-50f, 50f, -50f),
 
-                new Vector3 (-50, -50, 50),
-                new Vector3 (50, -50, 50),
-                new Vector3 (50, 50, 50),
-                new Vector3 (-50, 50, 50),
+                new Vector3 (-50f, -50f, 50f),
+                new Vector3 (50f, -50f, 50f),
+                new Vector3 (50f, 50f, 50f),
+                new Vector3 (-50f, 50f, 50f),
             };
 
-        private readonly SizeF canvasSize = new SizeF(600, 400);
+        private readonly SizeF canvasSize = new SizeF(600f, 400f);
         private float angle = 23f;
 
         public GraphicsDrawable()
@@ -35,11 +35,11 @@ namespace _3DLab
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             canvas.StrokeColor = Colors.White;
-            canvas.StrokeSize = 2;
-            canvas.DrawLine(0, 0, canvasSize.Width, 0);
-            canvas.DrawLine(canvasSize.Width, 0, canvasSize.Width, canvasSize.Height);
-            canvas.DrawLine(canvasSize.Width, canvasSize.Height, 0, canvasSize.Height);
-            canvas.DrawLine(0, canvasSize.Height, 0, 0);
+            canvas.StrokeSize = 2f;
+            canvas.DrawLine(0f, 0f, canvasSize.Width, 0f);
+            canvas.DrawLine(canvasSize.Width, 0f, canvasSize.Width, canvasSize.Height);
+            canvas.DrawLine(canvasSize.Width, canvasSize.Height, 0f, canvasSize.Height);
+            canvas.DrawLine(0f, canvasSize.Height, 0f, 0f);
 
             var ca = new CanvasAdapter(canvas, canvasSize);
 
@@ -49,7 +49,7 @@ namespace _3DLab
                 // M11 = X
                 // M21 = Y
                 // M31 = Z
-                var radians = (Math.PI / 180) * angle;
+                var radians = (Math.PI / 180f) * angle;
 
                 var vecMatrix = new Matrix4x4(
                     point.X, 0f, 0f, 0f,
@@ -57,9 +57,11 @@ namespace _3DLab
                     point.Z, 0f, 0f, 0f,
                     0f, 0f, 0f, 0f);
 
+                var rotated = vecMatrix;
+
                 // Rotation X
                 var rotationX = Matrix4x4.CreateRotationX((float)radians);
-                var rotated = Matrix4x4.Multiply(rotationX, vecMatrix);
+                rotated = Matrix4x4.Multiply(rotationX, rotated);
 
                 // Rotation Y
                 var rotationY = Matrix4x4.CreateRotationY((float)radians);
@@ -71,20 +73,19 @@ namespace _3DLab
 
                 // Weak perpective
                 var focal = 1f;
-                var distance = 300;
-                var x = focal / (distance - rotated.M31);
-                var y = focal / (distance - rotated.M31);
+                var distance = 300f;
+                var z = focal / (distance - rotated.M31);
                 var projection = new Matrix4x4(
-                    x, 0f, 0f, 0f,
-                    0f, y, 0f, 0f,
+                    z, 0f, 0f, 0f,
+                    0f, z, 0f, 0f,
                     0f, 0f, 0f, 0f,
                     0f, 0f, 0f, 0f);
                 var projected = Matrix4x4.Multiply(projection, rotated);
 
                 // Zoom in
                 var projection2 = new Matrix4x4(
-                    450, 0f, 0f, 0f,
-                    0f, 450, 0f, 0f,
+                    450f, 0f, 0f, 0f,
+                    0f, 450f, 0f, 0f,
                     0f, 0f, 0f, 0f,
                     0f, 0f, 0f, 0f);
                 projected = Matrix4x4.Multiply(projection2, projected);
@@ -103,13 +104,13 @@ namespace _3DLab
             }
 
             angle += 1f;
-            if (angle > 360)
+            if (angle > 360f)
             {
-                angle = 0;
+                angle = 0f;
             }
         }
 
-        private static void Connect(CanvasAdapter c,  int i, int j, List<Matrix4x4> points)
+        private static void Connect(CanvasAdapter c, int i, int j, List<Matrix4x4> points)
         {
             var a = new Vector2(points[i].M11, points[i].M21);
             var b = new Vector2(points[j].M11, points[j].M21);
