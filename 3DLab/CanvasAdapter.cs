@@ -20,10 +20,10 @@ namespace _3DLab
 
         public void DrawPoint(Vector2 point)
         {
-            canvas.FillColor = Colors.Bisque;
+            canvas.FillColor = Colors.Goldenrod;
             canvas.FillCircle(new PointF(
                 point.X + (this.canvasSize.Width / 2.0f),
-                point.Y + (this.canvasSize.Height / 2.0f)), 2.0f);
+                point.Y + (this.canvasSize.Height / 2.0f)), 5.0f);
         }
 
         public void DrawConnection(Vector2 point1, Vector2 point2)

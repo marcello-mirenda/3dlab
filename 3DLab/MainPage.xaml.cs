@@ -18,10 +18,10 @@ public partial class MainPage : ContentPage
 	{
 		while (!_cancellationTokenSource.IsCancellationRequested)
 		{
-			GView.Invalidate();
 			await Task.Delay(25);
-		}
-	}
+            GView.Invalidate();
+        }
+    }
 
     protected override void OnAppearing()
     {

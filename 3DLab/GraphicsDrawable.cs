@@ -25,7 +25,7 @@ namespace _3DLab
             };
 
         private readonly SizeF canvasSize = new SizeF(600f, 400f);
-        private float angle = 23f;
+        private float angle = 0f;
 
         public GraphicsDrawable()
         {
@@ -49,13 +49,13 @@ namespace _3DLab
                 // M11 = X
                 // M21 = Y
                 // M31 = Z
-                var radians = (Math.PI / 180f) * angle;
+                var radians = ((float)Math.PI / 180f) * angle;
 
                 var vecMatrix = new Matrix4x4(
                     point.X, 0f, 0f, 0f,
                     point.Y, 0f, 0f, 0f,
                     point.Z, 0f, 0f, 0f,
-                    0f, 0f, 0f, 0f);
+                         0f, 0f, 0f, 0f);
 
                 var rotated = vecMatrix;
 
@@ -73,21 +73,23 @@ namespace _3DLab
 
                 // Weak perpective
                 var focal = 1f;
-                var distance = 300f;
+                var distance = 400f;
                 var z = focal / (distance - rotated.M31);
                 var projection = new Matrix4x4(
-                    z, 0f, 0f, 0f,
-                    0f, z, 0f, 0f,
+                     z, 0f, 0f, 0f,
+                    0f,  z, 0f, 0f,
                     0f, 0f, 0f, 0f,
                     0f, 0f, 0f, 0f);
                 var projected = Matrix4x4.Multiply(projection, rotated);
 
                 // Zoom in
+                z = 650f;
                 var projection2 = new Matrix4x4(
-                    450f, 0f, 0f, 0f,
-                    0f, 450f, 0f, 0f,
-                    0f, 0f, 0f, 0f,
-                    0f, 0f, 0f, 0f);
+                    z, 0f, 0f, 0f,
+                   0f,  z, 0f, 0f,
+                   0f, 0f, 0f, 0f,
+                   0f, 0f, 0f, 0f);
+
                 projected = Matrix4x4.Multiply(projection2, projected);
 
                 ca.DrawPoint(new Vector2(projected.M11, projected.M21));
@@ -96,11 +98,12 @@ namespace _3DLab
 
             }
 
+            // Connect edges
             for (int i = 0; i < 4; i++)
             {
-                Connect(ca, i, (i + 1) % 4, projectedPoints);
+                Connect(ca, i    , (i + 1) % 4      , projectedPoints);
                 Connect(ca, i + 4, ((i + 1) % 4) + 4, projectedPoints);
-                Connect(ca, i, i + 4, projectedPoints);
+                Connect(ca, i    , i + 4            , projectedPoints);
             }
 
             angle += 1f;
