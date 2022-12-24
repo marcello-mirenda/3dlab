@@ -18,17 +18,17 @@ namespace _3DLab
             this.canvasSize = canvasSize;
         }
 
-        public void DrawPoint(Vector2 point)
+        public void DrawPoint(Vector2 point, Color fillColor)
         {
-            canvas.FillColor = Colors.Goldenrod;
+            canvas.FillColor = fillColor;
             canvas.FillCircle(new PointF(
                 point.X + (this.canvasSize.Width / 2.0f),
                 point.Y + (this.canvasSize.Height / 2.0f)), 5.0f);
         }
 
-        public void DrawConnection(Vector2 point1, Vector2 point2)
+        public void DrawConnection(Vector2 point1, Vector2 point2, Color strokeColor)
         {
-            canvas.StrokeColor = Colors.Aqua;
+            canvas.StrokeColor = strokeColor;
             canvas.StrokeSize = 2f;
             canvas.DrawLine(new PointF(
                 point1.X + (this.canvasSize.Width / 2.0f),
