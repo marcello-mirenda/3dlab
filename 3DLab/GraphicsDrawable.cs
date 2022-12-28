@@ -22,24 +22,57 @@ namespace _3DLab
                 new Vector3 (50f, -50f, 50f),   // 5
                 new Vector3 (50f, 50f, 50f),    // 6
                 new Vector3 (-50f, 50f, 50f),   // 7
-                new Vector3 (0f, 0f, 0f),   // 8 normal
-                new Vector3 (0f, 0f, 0f),   // 9 normal
+                new Vector3 (0f, 0f, 0f),   // 8
+                new Vector3 (0f, 0f, 0f),   // 9
+                new Vector3 (0f, 0f, 0f),   // 10 
+                new Vector3 (0f, 0f, 0f),   // 11
+                new Vector3 (0f, 0f, 0f),   // 12 
+                new Vector3 (0f, 0f, 0f),   // 13
             };
+
+        private readonly int[][] faces = new int[][]
+        {
+            new int[] {3,2,1,0},
+            new int[] {4,5,6,7},
+            new int[] {0,1,5,4},
+            new int[] {7,6,2,3},
+            new int[] {0,4,7,3},
+            new int[] {1,2,6,5},
+        };
+
+        private readonly int[][] edges = new int[12][]
+        {
+            new int[2] {0,1},
+            new int[2] {0,3},
+            new int[2] {0,4},
+            new int[2] {1,2},
+            new int[2] {1,5},
+            new int[2] {2,3},
+            new int[2] {2,6},
+            new int[2] {3,7},
+            new int[2] {4,5},
+            new int[2] {4,7},
+            new int[2] {5,6},
+            new int[2] {6,7},
+        };
 
         private readonly SizeF canvasSize = new SizeF(600f, 400f);
         private float angle = 0f;
         private readonly List<Matrix4x4> projectedPoints = new List<Matrix4x4>(8);
         private readonly Vector3 camera = new Vector3(0, 0, 400f);
+
         public GraphicsDrawable()
         {
-            var v1 = points[4];
-            var v2 = points[5];
-            var v3 = points[6];
-            var vv1 = v2 - v1;
-            var vv2 = v3 - v2;
-            var normal = Vector3.Cross(vv1, vv2);
-            points[8] = new Vector3(0, 0, 50f);
-            points[9] = Vector3.Normalize(normal) * 100f;
+            for (int i = 0; i < 6; i++)
+            {
+                var v1 = points[faces[i][0]];
+                var v2 = points[faces[i][1]];
+                var v3 = points[faces[i][2]];
+
+                var vv1 = v2 - v1;
+                var vv2 = v3 - v2;
+                points[i + 8] = Vector3.Cross(vv1, vv2);
+            }
         }
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
@@ -73,18 +106,17 @@ namespace _3DLab
 
                 var rotated = vecMatrix;
 
-                //// Rotation X
-                //var rotationX = Matrix4x4.CreateRotationX(radians);
-                //rotated = Matrix4x4.Multiply(rotationX, rotated);
+                // Rotation X
+                var rotationX = Matrix4x4.CreateRotationX(radians);
+                rotated = Matrix4x4.Multiply(rotationX, rotated);
 
                 // Rotation Y
                 var rotationY = Matrix4x4.CreateRotationY(radians);
                 rotated = Matrix4x4.Multiply(rotationY, rotated);
 
-
-                //// Rotation Z
-                //var rotationZ = Matrix4x4.CreateRotationZ(radians);
-                //rotated = Matrix4x4.Multiply(rotationZ, rotated);
+                // Rotation Z
+                var rotationZ = Matrix4x4.CreateRotationZ(radians);
+                rotated = Matrix4x4.Multiply(rotationZ, rotated);
 
                 rotadedPoints[i] = new Vector3(rotated.M11, rotated.M21, rotated.M31);
 
@@ -109,39 +141,40 @@ namespace _3DLab
 
                 projected = Matrix4x4.Multiply(projection2, projected);
 
-                //ca.DrawPoint(new Vector2(projected.M11, projected.M21));
-
                 projectedPoints.Add(projected);
 
             }
 
-            var vv = rotadedPoints[6] - camera;
-            var scalar = Vector3.Dot(vv, rotadedPoints[9]);
-
-
-            // Connect edges
-            for (int i = 0; i < 4; i++)
+            var hitCache = 0;
+            foreach (var item in cache)
             {
-                Connect(ca, i, (i + 1) % 4, projectedPoints, Colors.Aqua);
-                Connect(ca, i + 4, ((i + 1) % 4) + 4, projectedPoints, Colors.BlanchedAlmond);
-                Connect(ca, i, i + 4, projectedPoints, Colors.Coral);
+                cache[item.Key] = false;
             }
-
-            ca.DrawPoint(new Vector2(projectedPoints[6].M11, projectedPoints[6].M21), Colors.Goldenrod);
-            ca.DrawPoint(new Vector2(projectedPoints[5].M11, projectedPoints[5].M21), Colors.Purple);
-            ca.DrawPoint(new Vector2(projectedPoints[4].M11, projectedPoints[4].M21), Colors.RosyBrown);
-
-            if (scalar < 0)
+            for (int i = 0; i < 6; i++)
             {
-                ca.DrawPoint(new Vector2(projectedPoints[8].M11, projectedPoints[8].M21), Colors.SteelBlue);
-                ca.DrawPoint(new Vector2(projectedPoints[9].M11, projectedPoints[9].M21), Colors.SeaGreen);
-                Connect(ca, 8, 9, projectedPoints, Colors.Red);
-            }
-            else
-            {
-                ca.DrawPoint(new Vector2(projectedPoints[8].M11, projectedPoints[8].M21), Colors.SteelBlue);
-                ca.DrawPoint(new Vector2(projectedPoints[9].M11, projectedPoints[9].M21), Colors.SeaGreen);
-                Connect(ca, 8, 9, projectedPoints, Colors.ForestGreen);
+                var vv = rotadedPoints[faces[i][0]] - camera;
+                var scalar = Vector3.Dot(vv, rotadedPoints[i + 8]);
+
+                if (scalar < 0)
+                {
+                    var color = colors[i];
+                    if (Connect(ca, faces[i][0], faces[i][1], projectedPoints, color, cache))
+                    {
+                        hitCache++;
+                    }
+                    if (Connect(ca, faces[i][1], faces[i][2], projectedPoints, color, cache))
+                    {
+                        hitCache++;
+                    }
+                    if (Connect(ca, faces[i][2], faces[i][3], projectedPoints, color, cache))
+                    {
+                        hitCache++;
+                    }
+                    if (Connect(ca, faces[i][3], faces[i][0], projectedPoints, color, cache))
+                    {
+                        hitCache++;
+                    }
+                }
             }
 
             angle -= 1f;
@@ -150,22 +183,60 @@ namespace _3DLab
                 angle = 0f;
             }
 
-
             canvas.FontColor = Colors.Blue;
             canvas.Font = Font.Default;
             canvas.FontSize = 20f;
-            canvas.DrawString($"Angle {angle}, scalar {scalar}", 10f, 10f, 300f, 100f, HorizontalAlignment.Left, VerticalAlignment.Top);
-
-
-
+            canvas.DrawString($"Angle {angle}, HitCache {hitCache}", 10f, 10f, 300f, 100f, HorizontalAlignment.Left, VerticalAlignment.Top);
         }
 
-        private static void Connect(CanvasAdapter c, int i, int j, List<Matrix4x4> points, Color color)
+        private static bool Connect(CanvasAdapter c, int i, int j, List<Matrix4x4> points, Color color, Dictionary<(int v1, int v2), bool> cache)
         {
+            if (i > j)
+            {
+                if (cache[(j, i)])
+                {
+                    return true;
+                }
+                cache[(j, i)] = true;
+            }
+            else
+            {
+                if (cache[(i, j)])
+                {
+                    return true;
+                }
+                cache[(i, j)] = true;
+            }
             var a = new Vector2(points[i].M11, points[i].M21);
             var b = new Vector2(points[j].M11, points[j].M21);
             c.DrawConnection(a, b, color);
+            return false;
         }
 
+        private readonly Color[] colors = new Color[6]
+        {
+            Colors.Cyan,
+            Colors.DodgerBlue,
+            Colors.LightGreen,
+            Colors.Peru,
+            Colors.Gold,
+            Colors.Gainsboro
+        };
+
+        private readonly Dictionary<(int v1, int v2), bool> cache = new Dictionary<(int v1, int v2), bool>(12)
+        {
+            {(0,1), false },
+            {(0,3), false },
+            {(0,4), false },
+            {(1,2), false },
+            {(1,5), false },
+            {(2,3), false },
+            {(2,6), false },
+            {(3,7), false },
+            {(4,5), false },
+            {(4,7), false },
+            {(5,6), false },
+            {(6,7), false },
+        };
     }
 }
