@@ -86,7 +86,9 @@ namespace _3DLab
 
             var ca = new CanvasAdapter(canvas, canvasSize);
 
-            var radians = MathF.PI * angle / 180f;
+            var radiansX = ToRadians(angle);
+            var radiansY = ToRadians(angle);
+            var radiansZ = ToRadians(angle);
             projectedPoints.Clear();
 
             var rotadedPoints = new Vector3[points.Length];
@@ -106,17 +108,17 @@ namespace _3DLab
 
                 var rotated = vecMatrix;
 
-                // Rotation X
-                var rotationX = Matrix4x4.CreateRotationX(radians);
-                rotated = Matrix4x4.Multiply(rotationX, rotated);
+                rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationZ(ToRadians(45f)), rotated);
+                rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationX(ToRadians(35f)), rotated);
+
+                //// Rotation X
+                //rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationX(radiansX), rotated);
 
                 // Rotation Y
-                var rotationY = Matrix4x4.CreateRotationY(radians);
-                rotated = Matrix4x4.Multiply(rotationY, rotated);
+                rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationY(radiansY), rotated);
 
-                // Rotation Z
-                var rotationZ = Matrix4x4.CreateRotationZ(radians);
-                rotated = Matrix4x4.Multiply(rotationZ, rotated);
+                //// Rotation Z
+                //rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationZ(radiansZ), rotated);
 
                 rotadedPoints[i] = new Vector3(rotated.M11, rotated.M21, rotated.M31);
 
@@ -211,6 +213,11 @@ namespace _3DLab
             var b = new Vector2(points[j].M11, points[j].M21);
             c.DrawConnection(a, b, color);
             return false;
+        }
+
+        private static float ToRadians(float degrees)
+        {
+            return MathF.PI * degrees / 180f;
         }
 
         private readonly Color[] colors = new Color[6]
