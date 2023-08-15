@@ -111,14 +111,14 @@ namespace _3DLab
                 rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationZ(ToRadians(45f)), rotated);
                 rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationX(ToRadians(35f)), rotated);
 
-                //// Rotation X
-                //rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationX(radiansX), rotated);
+                // Rotation X
+                rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationX(radiansX), rotated);
 
                 // Rotation Y
                 rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationY(radiansY), rotated);
 
-                //// Rotation Z
-                //rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationZ(radiansZ), rotated);
+                // Rotation Z
+                rotated = Matrix4x4.Multiply(Matrix4x4.CreateRotationZ(radiansZ), rotated);
 
                 rotadedPoints[i] = new Vector3(rotated.M11, rotated.M21, rotated.M31);
 
